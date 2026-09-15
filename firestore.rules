@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // This app has no real login system — the "Kitchen PIN" is a check inside
+    // the app itself, not a Firestore-level permission. That means these rules
+    // are intentionally open (anyone can read/write) so customers can submit
+    // orders and the owner can manage the menu without signing in.
+    //
+    // The trade-off: someone who finds your Firebase project's config values
+    // (visible in the page's source, not truly secret, but not advertised
+    // either) could in theory write to your database directly, bypassing the
+    // app and the PIN. For a small ordering app this is usually an acceptable
+    // risk, but it's a real one worth knowing about — see README.md for a
+    // couple of ways to tighten this later if you want to.
+    match /config/{docId} {
+      allow read, write: if true;
+    }
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+  }
+}
