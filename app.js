@@ -543,13 +543,13 @@ import {
       var digits = normPhone(UI.draft.phone);
       if (digits.length < 7) return;
       getDoc(doc(db, "orders", round.id + "_" + digits)).then(function (snap) {
-        if (snap.exists()) {
-          var data = snap.data();
-          UI.draft.qty = Object.assign({}, data.items);
-          if (!UI.draft.name) UI.draft.name = data.name;
-          render();
-          showToast("Loaded your existing order — edit and re-submit to update it.");
-        }
+          if (snap.exists()) {
+            var data = snap.data();
+            UI.draft.submitted = data;
+            UI.draft.qty = Object.assign({}, data.items);
+            UI.draft.name = data.name;
+            UI.draft.phone = data.phone;
+          }
       }).catch(function (err) { console.error(err); });
     });
     attach("link-view-history", "click", function (e) {
