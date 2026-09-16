@@ -499,6 +499,7 @@ import {
             (lines.length ? '<div class="item-row" style="border-top:1px solid var(--line); border-bottom:none; font-weight:600;"><span class="item-name">Total</span><span class="mono">' + formatMoney(orderTotal) + '</span></div>' : "") +
             '<button class="btn btn-outline btn-block" id="btn-edit-order">Edit order</button>' +
             '<button class="btn btn-outline btn-block" id="btn-view-history">View my past orders</button>' +
+            '<button class="btn btn-danger btn-block" id="btn-cancel-order">Cancel order</button>' +
           '</div></div>' +
           '<p class="foot-link">Changed your mind? Just tap edit — orders can be updated until ordering closes.</p>' +
         '</div>';
@@ -507,6 +508,22 @@ import {
         UI.showMyOrders = true;
         fetchMyOrders(order.phone);
         render();
+      });
+      attach("btn-cancel-order", "click", function () {
+        showConfirm("Cancel your order for " + round.label + "? This can't be undone.", "Cancel order", function () {
+          var btn = document.getElementById("btn-cancel-order");
+          if (btn) btn.disabled = true;
+          deleteOrder(round.id + "_" + normPhone(order.phone)).then(function () {
+            UI.draft.submitted = null;
+            UI.draft.qty = {};
+            render();
+            showToast("Your order has been cancelled.");
+          }).catch(function (err) {
+            console.error(err);
+            showToast("Couldn't cancel your order — check your connection and try again.");
+            if (btn) btn.disabled = false;
+          });
+        });
       });
       return;
     }
