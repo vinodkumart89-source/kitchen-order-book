@@ -3,10 +3,11 @@
 // These values are not secret — they identify your project to Google's servers, the same way a website's URL does.
 // What actually protects your data is the Firestore security rules (see firestore.rules and the README).
 export const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBWiN9sOd8HEe63HIhaGLuCnv9B0PDU_jY",
+  authDomain: "nandus-kitchen-66326.firebaseapp.com",
+  projectId: "nandus-kitchen-66326",
+  storageBucket: "nandus-kitchen-66326.firebasestorage.app",
+  messagingSenderId: "768776134012",
+  appId: "1:768776134012:web:af518e906987a4392698f9",
+  measurementId: "G-TFZ3TT4GK2"
 };
