@@ -146,6 +146,9 @@ import {
   var OPEN_ROUND_ORDERS = [];    // live orders for the currently open round
   var HISTORY_ORDERS = {};       // roundId -> orders array, fetched on demand
   var HISTORY_LOADING = {};      // roundId -> true while a fetch is in flight
+  var MY_ORDERS = null;          // a customer's own orders across all rounds, fetched on demand
+  var MY_ORDERS_LOADING = false;
+  var MY_ORDERS_PHONE = null;    // which normalized phone MY_ORDERS currently holds
 
   function firebaseNotConfigured() {
     return !firebaseConfig || firebaseConfig.apiKey === "YOUR_API_KEY";
@@ -211,6 +214,27 @@ import {
     });
   }
 
+  // A customer's own orders across every round (past and present), matched by
+  // phone number rather than round — this is what powers "my past orders".
+  function fetchMyOrders(phone) {
+    var digits = normPhone(phone);
+    if (digits.length < 7) return;
+    MY_ORDERS_LOADING = true;
+    MY_ORDERS_PHONE = digits;
+    var q = query(collection(db, "orders"), where("id", "==", digits));
+    getDocs(q).then(function (snap) {
+      if (MY_ORDERS_PHONE !== digits) return; // phone changed while this was in flight
+      MY_ORDERS = snap.docs.map(function (d) { return d.data(); });
+      MY_ORDERS_LOADING = false;
+      render();
+    }).catch(function (err) {
+      MY_ORDERS_LOADING = false;
+      console.error(err);
+      showToast("Couldn't load your past orders — check your connection and try again.");
+      render();
+    });
+  }
+
   /* ---------------------------------------------------------------- *
    *  Mutations (each writes to Firestore; onSnapshot re-renders)
    * ---------------------------------------------------------------- */
@@ -255,6 +279,7 @@ import {
     authed: (function () { try { return sessionStorage.getItem("kitchenAuthed") === "1"; } catch (e) { return false; } })(),
     tab: "orders",
     draft: {},
+    showMyOrders: false,
     menuDraft: null,
     menuDirty: false,
     toastTimer: null
@@ -329,6 +354,75 @@ import {
       '</div>';
   }
 
+  function renderCheckingExisting(round) {
+    root.innerHTML =
+      '<div class="shell">' +
+        '<div class="topbar"><div class="brand"><h1>' + escapeHtml(STATE.business.name) + '</h1><span class="tag">' + escapeHtml(round.label) + ' · ' + fmtDate(round.date) + '</span></div></div>' +
+        '<div class="empty-state"><h2>One moment…</h2><p>Checking whether you already have an order in for today.</p></div>' +
+      '</div>';
+  }
+
+  // A customer's own orders across every round, matched by phone number.
+  function renderMyOrders(round) {
+    var biz = STATE.business;
+    var digits = normPhone(UI.draft.phone);
+    var body;
+    if (MY_ORDERS_LOADING || MY_ORDERS === null || MY_ORDERS_PHONE !== digits) {
+      body = '<div class="empty-state"><h2>Loading…</h2><p>Fetching your past orders.</p></div>';
+    } else if (!MY_ORDERS.length) {
+      body = '<div class="empty-state"><h2>No past orders</h2><p>We couldn’t find any previous orders for this mobile number.</p></div>';
+    } else {
+      var rows = MY_ORDERS.slice().sort(function (a, b) {
+        var ra = STATE.rounds.find(function (r) { return r.id === a.roundId; });
+        var rb = STATE.rounds.find(function (r) { return r.id === b.roundId; });
+        return (rb ? rb.createdAt : 0) - (ra ? ra.createdAt : 0);
+      });
+      body = '<div class="stack">' + rows.map(function (o) {
+        var r = STATE.rounds.find(function (x) { return x.id === o.roundId; });
+        var label = r ? r.label : "Past order";
+        var date = r ? fmtDate(r.date) : "";
+        var isOpen = !!(r && r.status === "open");
+        var total = 0;
+        var lines = Object.keys(o.items || {}).map(function (id) {
+          var m = STATE.menu.find(function (x) { return x.id === id; });
+          var qty = o.items[id];
+          var price = m ? (m.price || 0) : 0;
+          total += price * qty;
+          return (m ? m.name : "Item") + " × " + qty;
+        });
+        return '<div class="ticket"><div class="ticket-inner stack">' +
+          '<div class="row between"><h3 style="font-size:1rem;">' + escapeHtml(label) + '</h3><span class="pill ' + (isOpen ? "open" : "closed") + '">' + (isOpen ? "Open" : "Closed") + '</span></div>' +
+          (date ? '<span class="tag" style="color:var(--muted); font-size:0.8rem;">' + escapeHtml(date) + '</span>' : "") +
+          '<p style="margin:6px 0;">' + (lines.length ? escapeHtml(lines.join(", ")) : "No items") + '</p>' +
+          (lines.length ? '<div class="item-row" style="border-top:1px solid var(--line); border-bottom:none; font-weight:600;"><span class="item-name">Total</span><span class="mono">' + formatMoney(total) + '</span></div>' : "") +
+          (isOpen ? '<button class="btn btn-outline btn-block" data-edit-mine="' + escapeHtml(o.roundId) + '">Edit this order</button>' : "") +
+        '</div></div>';
+      }).join("") + '</div>';
+    }
+    root.innerHTML =
+      '<div class="shell">' +
+        '<div class="topbar"><div class="brand"><h1>' + escapeHtml(biz.name) + '</h1><span class="tag">Your past orders</span></div></div>' +
+        body +
+        '<button class="btn btn-outline btn-block" id="btn-back-from-history" style="margin-top:12px;">Back</button>' +
+      '</div>';
+    attach("btn-back-from-history", "click", function () { UI.showMyOrders = false; render(); });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-edit-mine]"), function (btn) {
+      btn.addEventListener("click", function () {
+        var rId = btn.getAttribute("data-edit-mine");
+        if (rId !== round.id) return; // only the currently open round can be edited
+        var mine = MY_ORDERS && MY_ORDERS.find(function (o) { return o.roundId === rId; });
+        if (mine) {
+          UI.draft.submitted = mine;
+          UI.draft.qty = Object.assign({}, mine.items);
+          UI.draft.name = mine.name;
+          UI.draft.phone = mine.phone;
+        }
+        UI.showMyOrders = false;
+        render();
+      });
+    });
+  }
+
   function renderOrderForm() {
     var round = findOpenRound(STATE);
     var biz = STATE.business;
@@ -346,12 +440,42 @@ import {
     }
 
     if (UI.draft.roundId !== round.id) {
-      UI.draft = { roundId: round.id, name: "", phone: "", qty: {}, submitted: null };
+      UI.draft = { roundId: round.id, name: "", phone: "", qty: {}, submitted: null, checking: false, checked: false };
+      UI.showMyOrders = false;
       try {
         var last = JSON.parse(localStorage.getItem("lastOrderContact") || "null");
         if (last) { UI.draft.name = last.name || ""; UI.draft.phone = last.phone || ""; }
       } catch (e) {}
+
+      // If we already know this customer's number (from last time on this
+      // device), check Firestore for an order they already placed in this
+      // round — so a refresh lands them back on their existing order instead
+      // of a blank form that looks like their order vanished.
+      var knownDigits = normPhone(UI.draft.phone);
+      if (knownDigits.length >= 7) {
+        var draftAtCheckTime = UI.draft;
+        UI.draft.checking = true;
+        getDoc(doc(db, "orders", round.id + "_" + knownDigits)).then(function (snap) {
+          if (UI.draft !== draftAtCheckTime) return; // user already moved on (e.g. round changed again)
+          UI.draft.checking = false;
+          UI.draft.checked = true;
+          if (snap.exists()) UI.draft.submitted = snap.data();
+          render();
+        }).catch(function (err) {
+          console.error(err);
+          if (UI.draft !== draftAtCheckTime) return;
+          UI.draft.checking = false;
+          UI.draft.checked = true;
+          render();
+        });
+      } else {
+        UI.draft.checked = true;
+      }
     }
+
+    if (UI.draft.checking) { renderCheckingExisting(round); return; }
+
+    if (UI.showMyOrders) { renderMyOrders(round); return; }
 
     if (UI.draft.submitted) {
       var order = UI.draft.submitted;
@@ -374,10 +498,16 @@ import {
             '<div>' + (lines.length ? lines.map(function (l) { return '<div class="item-row"><span class="item-name">' + escapeHtml(l) + '</span></div>'; }).join("") : '<p style="color:var(--muted);">No items.</p>') + '</div>' +
             (lines.length ? '<div class="item-row" style="border-top:1px solid var(--line); border-bottom:none; font-weight:600;"><span class="item-name">Total</span><span class="mono">' + formatMoney(orderTotal) + '</span></div>' : "") +
             '<button class="btn btn-outline btn-block" id="btn-edit-order">Edit order</button>' +
+            '<button class="btn btn-outline btn-block" id="btn-view-history">View my past orders</button>' +
           '</div></div>' +
           '<p class="foot-link">Changed your mind? Just tap edit — orders can be updated until ordering closes.</p>' +
         '</div>';
       attach("btn-edit-order", "click", function () { UI.draft.submitted = null; render(); });
+      attach("btn-view-history", "click", function () {
+        UI.showMyOrders = true;
+        fetchMyOrders(order.phone);
+        render();
+      });
       return;
     }
 
@@ -404,6 +534,7 @@ import {
           '<span class="total">Items: <b class="mono">' + totalQty + '</b> &middot; Total: <b class="mono">' + formatMoney(totalPrice) + '</b></span>' +
           '<button class="btn btn-primary" id="btn-submit" ' + (canSubmit ? "" : "disabled") + '>Submit order</button>' +
         '</div>' +
+        '<p class="foot-link"><a href="#" id="link-view-history">View my past orders</a></p>' +
       '</div>';
 
     attach("f-name", "input", function (e) { UI.draft.name = e.target.value; syncSubmitState(); });
@@ -421,12 +552,27 @@ import {
         }
       }).catch(function (err) { console.error(err); });
     });
+    attach("link-view-history", "click", function (e) {
+      e.preventDefault();
+      var digits = normPhone(UI.draft.phone);
+      if (digits.length < 7) { showToast("Enter your mobile number above first."); return; }
+      UI.showMyOrders = true;
+      fetchMyOrders(UI.draft.phone);
+      render();
+    });
     activeMenu.forEach(function (m) {
       attach("dec-" + m.id, "click", function () { UI.draft.qty[m.id] = Math.max(0, (UI.draft.qty[m.id] || 0) - 1); render(); });
       attach("inc-" + m.id, "click", function () { UI.draft.qty[m.id] = (UI.draft.qty[m.id] || 0) + 1; render(); });
     });
     attach("btn-submit", "click", function () {
-      if (!canSubmit) return;
+      // Recomputed here rather than trusting the outer `canSubmit` — that
+      // variable is only fresh right after a full render (e.g. tapping +/-).
+      // Typing in the name/phone fields updates state without a full
+      // re-render, so a stale `canSubmit` from an earlier render could make
+      // this silently no-op even while the button looked enabled.
+      var liveQty = Object.keys(UI.draft.qty).reduce(function (s, k) { return s + (UI.draft.qty[k] || 0); }, 0);
+      var liveOk = UI.draft.name.trim().length > 1 && normPhone(UI.draft.phone).length >= 7 && liveQty > 0;
+      if (!liveOk) return;
       var btn = document.getElementById("btn-submit");
       if (btn) btn.disabled = true;
       submitOrder(round, UI.draft.name, UI.draft.phone, UI.draft.qty).then(function (order) {
