@@ -32,11 +32,11 @@ import {
       pin: "1234"
     },
     menu: [
-      { id: "veg-thali", name: "Veg Thali", active: true, price: 120 },
-      { id: "chicken-curry", name: "Chicken Curry Meal", active: true, price: 150 },
-      { id: "curd-rice", name: "Curd Rice", active: true, price: 60 },
-      { id: "chapati2", name: "Chapati (2 pcs)", active: true, price: 40 },
-      { id: "sweet", name: "Today's Sweet", active: false, price: 30 }
+      { id: "veg-thali", name: "Veg Thali", active: true, price: 120, image: "" },
+      { id: "chicken-curry", name: "Chicken Curry Meal", active: true, price: 150, image: "" },
+      { id: "curd-rice", name: "Curd Rice", active: true, price: 60, image: "" },
+      { id: "chapati2", name: "Chapati (2 pcs)", active: true, price: 40, image: "" },
+      { id: "sweet", name: "Today's Sweet", active: false, price: 30, image: "" }
     ],
     rounds: []
   };
@@ -611,7 +611,11 @@ import {
 
   function renderItemRow(m) {
     var qty = UI.draft.qty[m.id] || 0;
-    return '<div class="item-row"><span class="item-name">' + escapeHtml(m.name) + '<span class="sub">' + formatMoney(m.price) + ' each</span></span>' +
+    return '<div class="item-row">' +
+      '<div style="display:flex; align-items:center; gap:10px; min-width:0;">' +
+        (m.image ? '<img src="' + escapeHtml(m.image) + '" alt="" style="width:44px; height:44px; border-radius:8px; object-fit:cover; flex:none;">' : '') +
+        '<span class="item-name">' + escapeHtml(m.name) + '<span class="sub">' + formatMoney(m.price) + ' each</span></span>' +
+      '</div>' +
       '<div class="qty-block">' +
         '<div class="stepper">' +
           '<button type="button" id="dec-' + m.id + '" aria-label="Decrease ' + escapeHtml(m.name) + '" ' + (qty <= 0 ? "disabled" : "") + '>−</button>' +
@@ -808,9 +812,11 @@ import {
         UI.menuDraft.map(function (m) {
           return '<div class="menu-row">' +
             '<label class="switch"><input type="checkbox" data-toggle="' + m.id + '" ' + (m.active ? "checked" : "") + '><span class="track"></span><span class="knob"></span></label>' +
+            (m.image ? '<img src="' + escapeHtml(m.image) + '" alt="" style="width:32px; height:32px; border-radius:6px; object-fit:cover; flex:none;">' : "") +
             '<input type="text" class="menu-name" data-name="' + m.id + '" value="' + escapeHtml(m.name) + '">' +
             '<label class="price-field">$<input type="number" min="0" step="0.01" inputmode="decimal" data-price="' + m.id + '" value="' + (m.price || 0) + '"></label>' +
             '<button class="btn btn-danger btn-sm" data-remove="' + m.id + '">Remove</button>' +
+            '<input type="url" data-image="' + m.id + '" placeholder="Photo URL (optional)" value="' + escapeHtml(m.image || "") + '" style="flex:1 1 100%; margin-top:4px;">' +
           '</div>';
         }).join("") +
         '<div class="row" style="margin-top:12px;">' +
@@ -861,6 +867,13 @@ import {
         markMenuDirty();
       });
     });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-image]"), function (el) {
+      el.addEventListener("input", function () {
+        var m = UI.menuDraft.find(function (x) { return x.id === el.getAttribute("data-image"); });
+        if (m) m.image = el.value.trim();
+        markMenuDirty();
+      });
+    });
     Array.prototype.forEach.call(document.querySelectorAll("[data-remove]"), function (el) {
       el.addEventListener("click", function () {
         showConfirm("Remove this menu item? This only takes effect once you save.", "Remove", function () {
@@ -873,7 +886,7 @@ import {
     attach("btn-add-menu", "click", function () {
       var input = document.getElementById("new-menu-name");
       if (input.value.trim()) {
-        UI.menuDraft.push({ id: uid(), name: input.value.trim(), active: true, price: 0 });
+        UI.menuDraft.push({ id: uid(), name: input.value.trim(), active: true, price: 0, image: "" });
         UI.menuDirty = true;
         render();
       }
