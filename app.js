@@ -960,7 +960,9 @@ import {
 
   function renderSettingsTab() {
     return '<div class="ticket"><div class="ticket-inner stack">' +
-      '<div class="field"><label for="set-name">Kitchen name</label><input type="text" id="set-name" value="' + escapeHtml(STATE.business.name) + '"></div>' +
+            '<div class="field"><label for="set-name">Kitchen name</label><input type="text" id="set-name" value="' + escapeHtml(STATE.business.name) + '"></div>' +
+      '<div class="field"><label for="set-logo">Logo image URL (optional)</label><input type="url" id="set-logo" value="' + escapeHtml(STATE.business.logoUrl || "") + '"><span class="hint">Shown next to your kitchen name at the top of every screen.</span></div>' +
+      '<div class="field"><label for="set-closed">Message shown when ordering is closed</label><input type="text" id="set-closed" value="' + escapeHtml(STATE.business.closedMessage) + '"></div>' +
       '<div class="field"><label for="set-closed">Message shown when ordering is closed</label><input type="text" id="set-closed" value="' + escapeHtml(STATE.business.closedMessage) + '"></div>' +
       '<div class="field" style="margin-bottom:0;"><label for="set-pin">Kitchen PIN</label><input type="text" inputmode="numeric" id="set-pin" value="' + escapeHtml(STATE.business.pin) + '"><span class="hint">Anyone with this PIN can open this Kitchen view. It is a light deterrent, not a real password — don’t use it for sensitive data.</span></div>' +
       '<button class="btn btn-primary" id="btn-save-settings">Save settings</button>' +
