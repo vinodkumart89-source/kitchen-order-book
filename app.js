@@ -325,6 +325,18 @@ import {
    * ---------------------------------------------------------------- */
   var root;
 
+  // The business name/logo block used at the top of every screen. Centralized
+  // here so the optional logo image only has to be wired up in one place.
+  function brandBlock(tagHtml) {
+    var logo = STATE.business.logoUrl;
+    var inner = '<h1>' + escapeHtml(STATE.business.name) + '</h1><span class="tag">' + tagHtml + '</span>';
+    if (!logo) return '<div class="brand">' + inner + '</div>';
+    return '<div class="brand" style="flex-direction:row; align-items:center; gap:8px;">' +
+      '<img src="' + escapeHtml(logo) + '" alt="" style="width:36px; height:36px; border-radius:50%; object-fit:cover; flex:none;">' +
+      '<div style="display:flex; flex-direction:column; gap:2px;">' + inner + '</div>' +
+    '</div>';
+  }
+
   function render() {
     root = document.getElementById("app");
     if (!root) return;
@@ -357,7 +369,7 @@ import {
   function renderCheckingExisting(round) {
     root.innerHTML =
       '<div class="shell">' +
-        '<div class="topbar"><div class="brand"><h1>' + escapeHtml(STATE.business.name) + '</h1><span class="tag">' + escapeHtml(round.label) + ' · ' + fmtDate(round.date) + '</span></div></div>' +
+        '<div class="topbar">' + brandBlock(escapeHtml(round.label) + ' · ' + fmtDate(round.date)) + '</div>' +
         '<div class="empty-state"><h2>One moment…</h2><p>Checking whether you already have an order in for today.</p></div>' +
       '</div>';
   }
@@ -401,7 +413,7 @@ import {
     }
     root.innerHTML =
       '<div class="shell">' +
-        '<div class="topbar"><div class="brand"><h1>' + escapeHtml(biz.name) + '</h1><span class="tag">Your past orders</span></div></div>' +
+        '<div class="topbar">' + brandBlock("Your past orders") + '</div>' +
         body +
         '<button class="btn btn-outline btn-block" id="btn-back-from-history" style="margin-top:12px;">Back</button>' +
       '</div>';
@@ -430,7 +442,7 @@ import {
     if (!round) {
       root.innerHTML =
         '<div class="shell">' +
-          '<div class="topbar"><div class="brand"><h1>' + escapeHtml(biz.name) + '</h1><span class="tag">Order book</span></div></div>' +
+          '<div class="topbar">' + brandBlock("Order book") + '</div>' +
           '<div class="empty-state">' +
             '<h2>Not taking orders right now</h2>' +
             '<p>' + escapeHtml(biz.closedMessage) + '</p>' +
@@ -489,7 +501,7 @@ import {
       });
       root.innerHTML =
         '<div class="shell">' +
-          '<div class="topbar"><div class="brand"><h1>' + escapeHtml(biz.name) + '</h1><span class="tag">' + escapeHtml(round.label) + ' · ' + fmtDate(round.date) + '</span></div></div>' +
+          '<div class="topbar">' + brandBlock(escapeHtml(round.label) + ' · ' + fmtDate(round.date)) + '</div>' +
           '<div class="ticket"><div class="ticket-inner stack">' +
             '<div class="confirm-check">✓</div>' +
             '<h2 style="text-align:center;">Thanks, ' + escapeHtml(order.name.split(" ")[0]) + '!</h2>' +
@@ -535,7 +547,7 @@ import {
 
     root.innerHTML =
       '<div class="shell">' +
-        '<div class="topbar"><div class="brand"><h1>' + escapeHtml(biz.name) + '</h1><span class="tag">' + escapeHtml(round.label) + ' · ' + fmtDate(round.date) + '</span></div><span class="pill open">Open</span></div>' +
+        '<div class="topbar">' + brandBlock(escapeHtml(round.label) + ' · ' + fmtDate(round.date)) + '<span class="pill open">Open</span></div>' +
         '<div class="ticket"><div class="ticket-inner stack">' +
           '<div>' +
             '<div class="field"><label for="f-name">Your name</label><input type="text" id="f-name" placeholder="e.g. Priya" autocomplete="name" value="' + escapeHtml(UI.draft.name) + '"></div>' +
@@ -629,7 +641,7 @@ import {
   function renderPinGate() {
     root.innerHTML =
       '<div class="shell">' +
-        '<div class="topbar"><div class="brand"><h1>' + escapeHtml(STATE.business.name) + '</h1><span class="tag">Kitchen access</span></div></div>' +
+        '<div class="topbar">' + brandBlock("Kitchen access") + '</div>' +
         '<div class="ticket"><div class="ticket-inner pin-wrap">' +
           '<div class="section-title">Enter kitchen PIN</div>' +
           '<input type="password" inputmode="numeric" id="pin-input" maxlength="8" autofocus>' +
@@ -670,7 +682,7 @@ import {
 
     root.innerHTML =
       '<div class="shell wide">' +
-        '<div class="topbar"><div class="brand"><h1>' + escapeHtml(STATE.business.name) + '</h1><span class="tag">Kitchen view</span></div><a class="btn btn-outline btn-sm" href="#" id="link-order">View order form</a></div>' +
+        '<div class="topbar">' + brandBlock("Kitchen view") + '<a class="btn btn-outline btn-sm" href="#" id="link-order">View order form</a></div>' +
         tabsHtml +
         body +
       '</div>';
