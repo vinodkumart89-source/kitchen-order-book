@@ -974,6 +974,7 @@ import {
       if (btn) btn.disabled = true;
       updateBusiness({
         name: document.getElementById("set-name").value.trim() || "Kitchen",
+        logoUrl: document.getElementById("set-logo").value.trim(),
         closedMessage: document.getElementById("set-closed").value.trim() || "Ordering is closed right now.",
         pin: document.getElementById("set-pin").value.trim() || "1234"
       }).then(function () {
