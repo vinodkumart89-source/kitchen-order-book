@@ -73,6 +73,7 @@ input:focus-visible, button:focus-visible, a:focus-visible{outline:2px solid var
 .submit-bar{position:sticky; bottom:0; margin:-16px 0 -32px; padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)); background:var(--paper); border:1px solid var(--line); border-top:none; border-radius:0 0 14px 14px; box-shadow:var(--shadow); display:flex; align-items:center; gap:12px;}
 .submit-bar .total{flex:1; font-size:0.85rem; color:var(--muted);}
 .submit-bar .total b{color:var(--ink); font-family:'IBM Plex Mono',monospace;}
+.submit-bar .total .total-amt{color:var(--basil-strong); font-size:1.05rem; font-weight:700;}
 .save-bar{position:sticky; bottom:0; margin:-16px 0 -32px; padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)); background:var(--paper); border:1px solid var(--line); border-top:none; border-radius:0 0 14px 14px; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
 .save-status{font-size:0.85rem; color:var(--muted); display:inline-flex; align-items:center; gap:6px;}
 .save-status .dot{width:8px; height:8px; border-radius:50%; background:var(--turmeric); flex:none;}
