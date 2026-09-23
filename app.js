@@ -559,7 +559,7 @@ import {
           '</div>' +
         '</div></div>' +
         '<div class="submit-bar">' +
-          '<span class="total">Items: <b class="mono">' + totalQty + '</b> &middot; Total: <b class="mono">' + formatMoney(totalPrice) + '</b></span>' +
+          '<span class="total">Items: <b class="mono">' + totalQty + '</b> &middot; Total: <b class="mono total-amt">' + formatMoney(totalPrice) + '</b></span>' +
           '<button class="btn btn-primary" id="btn-submit" ' + (canSubmit ? "" : "disabled") + '>Submit order</button>' +
         '</div>' +
         '<p class="foot-link"><a href="#" id="link-view-history">View my past orders</a></p>' +
