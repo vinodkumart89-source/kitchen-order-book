@@ -8,12 +8,17 @@
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+/* The app always uses the light (white-card) palette below, regardless of
+   the visitor's device dark-mode setting, so the yellow/white brand look
+   stays consistent for every customer. The block below only applies if a
+   future "dark mode" toggle in the app itself sets data-theme="dark" — it
+   is not triggered automatically. */
 :root[data-theme='dark']{
   --paper:#12160F; --surface:#1B2117; --ink:#ECE7D8; --muted:#9AA08C;
   --basil:#8AC896; --basil-strong:#A6DAAF; --turmeric:#E3A83E;
   --line:#333B2C; --critical:#E58A72; --critical-strong:#F0A98F; --good:#8AC896;
   --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
-  --page-bg: #FFD500;
+  --page-bg: #4A3B0F;
 }
 *{box-sizing:border-box;}
 html,body{height:100%;}
@@ -27,7 +32,7 @@ h1,h2,h3{font-family:'Fraunces',Georgia,serif; text-wrap:balance; margin:0; colo
 .topbar{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding-block:4px;}
 .topbar .brand{display:flex; flex-direction:column; gap:2px;}
 .topbar h1{font-size:1.3rem;}
-.topbar .tag{font-size:0.78rem; color:var(--muted); letter-spacing:0.02em;}
+.topbar .tag{display:inline-block; font-size:0.76rem; font-weight:700; letter-spacing:0.03em; color:#fff; background:var(--critical-strong); padding:5px 16px; margin-top:2px; clip-path:polygon(0% 0%, 100% 0%, 91% 50%, 100% 100%, 0% 100%, 9% 50%); box-shadow:0 2px 4px rgba(32,43,30,0.18);}
 .topbar-right{display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex:none;}
 .kitchen-link{font-size:0.76rem; color:var(--muted); text-decoration:underline; text-underline-offset:2px; white-space:nowrap;}
 .kitchen-link:hover{color:var(--ink);}
@@ -35,8 +40,6 @@ h1,h2,h3{font-family:'Fraunces',Georgia,serif; text-wrap:balance; margin:0; colo
 .pill.open{color:var(--basil-strong); border-color:var(--basil); background:color-mix(in srgb, var(--basil) 10%, var(--surface));}
 .pill.closed{color:var(--critical); border-color:var(--critical);}
 .ticket{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:20px 18px 18px; overflow:hidden;}
-  background-image: radial-gradient(circle at 8px 0, transparent 6px, var(--page-bg) 6.5px);
-  background-size:16px 16px; background-position:0 -4px; background-repeat:repeat-x;}
 .ticket-inner{padding-top:6px;}
 .section-title{font-size:0.72rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;}
 .field{display:flex; flex-direction:column; gap:6px; margin-bottom:14px;}
@@ -67,10 +70,10 @@ input:focus-visible, button:focus-visible, a:focus-visible{outline:2px solid var
 .btn-danger:hover{background:color-mix(in srgb, var(--critical) 10%, transparent);}
 .btn-block{width:100%;}
 .btn-sm{padding:7px 12px; font-size:0.82rem; border-radius:8px;}
-.submit-bar{position:sticky; bottom:0; margin:0 -16px -32px; padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)); background:linear-gradient(to top, var(--paper) 70%, transparent); display:flex; align-items:center; gap:12px;}
+.submit-bar{position:sticky; bottom:0; margin:-16px 0 -32px; padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)); background:var(--paper); border:1px solid var(--line); border-top:none; border-radius:0 0 14px 14px; box-shadow:var(--shadow); display:flex; align-items:center; gap:12px;}
 .submit-bar .total{flex:1; font-size:0.85rem; color:var(--muted);}
 .submit-bar .total b{color:var(--ink); font-family:'IBM Plex Mono',monospace;}
-.save-bar{position:sticky; bottom:0; margin:0 -16px -32px; padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)); background:linear-gradient(to top, var(--paper) 75%, transparent); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+.save-bar{position:sticky; bottom:0; margin:-16px 0 -32px; padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)); background:var(--paper); border:1px solid var(--line); border-top:none; border-radius:0 0 14px 14px; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
 .save-status{font-size:0.85rem; color:var(--muted); display:inline-flex; align-items:center; gap:6px;}
 .save-status .dot{width:8px; height:8px; border-radius:50%; background:var(--turmeric); flex:none;}
 .empty-state{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:32px 20px; text-align:center; display:flex; flex-direction:column; gap:8px; align-items:center;}
