@@ -556,7 +556,6 @@ import {
           '<div>' +
             '<div class="section-title">Menu</div>' +
             (activeMenu.length ? activeMenu.map(renderItemRow).join("") : '<p style="color:var(--muted);">No items on the menu yet.</p>') +
-            (activeMenu.length ? '<div class="item-row" style="border-top:1px solid var(--line); border-bottom:none; font-weight:600;"><span class="item-name">Total</span><span class="mono">' + formatMoney(totalPrice) + '</span></div>' : "") +
           '</div>' +
         '</div></div>' +
         '<div class="submit-bar">' +
