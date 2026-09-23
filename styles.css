@@ -35,7 +35,6 @@ h1,h2,h3{font-family:'Fraunces',Georgia,serif; text-wrap:balance; margin:0; colo
 .pill.open{color:var(--basil-strong); border-color:var(--basil); background:color-mix(in srgb, var(--basil) 10%, var(--surface));}
 .pill.closed{color:var(--critical); border-color:var(--critical);}
 .ticket{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:20px 18px 18px; overflow:hidden;}
-.ticket::before{content:''; position:absolute; top:0; left:0; right:0; height:8px;
   background-image: radial-gradient(circle at 8px 0, transparent 6px, var(--page-bg) 6.5px);
   background-size:16px 16px; background-position:0 -4px; background-repeat:repeat-x;}
 .ticket-inner{padding-top:6px;}
