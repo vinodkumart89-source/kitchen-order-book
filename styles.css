@@ -119,6 +119,9 @@ input:focus-visible, button:focus-visible, a:focus-visible{outline:2px solid var
 .pin-wrap input{text-align:center; font-size:1.4rem; letter-spacing:0.4em; max-width:180px; font-family:'IBM Plex Mono',monospace;}
 .foot-link{text-align:center; font-size:0.76rem; color:var(--muted);}
 .foot-link a{color:var(--muted);}
+.foot-link{text-align:center; font-size:0.76rem; color:var(--muted);}
+.foot-link a{color:var(--muted);}
+.submit-bar + .foot-link{margin-top:28px;}
 .error-text{color:var(--critical); font-size:0.82rem; margin-top:4px;}
 .stack{display:flex; flex-direction:column; gap:14px;}
 .row{display:flex; gap:10px; align-items:center;}
