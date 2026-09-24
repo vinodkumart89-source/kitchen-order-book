@@ -39,6 +39,8 @@ h1,h2,h3{font-family:'Fraunces',Georgia,serif; text-wrap:balance; margin:0; colo
 .pill{display:inline-flex; align-items:center; gap:6px; font-size:0.72rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted); background:var(--surface);}
 .pill.open{color:var(--basil-strong); border-color:var(--basil); background:color-mix(in srgb, var(--basil) 10%, var(--surface));}
 .pill.closed{color:var(--critical); border-color:var(--critical);}
+.pill.closed{color:var(--critical); border-color:var(--critical);}
+.cadence-note{align-self:center; margin-top:-6px; padding:6px 14px; border-radius:999px; background:color-mix(in srgb, var(--turmeric) 16%, var(--surface)); border:1px solid var(--turmeric); color:var(--turmeric); font-size:0.78rem; font-weight:700; text-align:center;}
 .ticket{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:20px 18px 18px; overflow:hidden;}
 .ticket-inner{padding-top:6px;}
 .section-title{font-size:0.72rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;}
