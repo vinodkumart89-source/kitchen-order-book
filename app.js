@@ -118,6 +118,18 @@ import {
     return rounds;
   }
   function todayISO() {
+// Orders run weekly, every Sunday — this returns today's date if today
+// is already a Sunday, otherwise the date of the coming Sunday. Used to
+// pre-fill the "open a new round" form so staff don't have to work out
+// the date by hand each week.
+function nextSundayISO() {
+  var d = new Date();
+  var day = d.getDay(); // 0 = Sunday
+  if (day !== 0) d.setDate(d.getDate() + (7 - day));
+  var m = String(d.getMonth() + 1).padStart(2, "0");
+  var dd = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + "-" + m + "-" + dd;
+}    
     var d = new Date();
     var m = String(d.getMonth() + 1).padStart(2, "0");
     var day = String(d.getDate()).padStart(2, "0");
@@ -547,8 +559,9 @@ import {
 
     root.innerHTML =
       '<div class="shell">' +
-        '<div class="topbar">' + brandBlock(escapeHtml(round.label) + ' · ' + fmtDate(round.date)) + '<span class="pill open">Open</span></div>' +
-        '<div class="ticket"><div class="ticket-inner stack">' +
+'<div class="topbar">' + brandBlock(escapeHtml(round.label) + ' · ' + fmtDate(round.date)) + '<span class="pill open">Open</span></div>' +
+'<span class="cadence-note">Orders open weekly, every Sunday</span>' +
+'<div class="ticket"><div class="ticket-inner stack">' +
           '<div>' +
             '<div class="field"><label for="f-name">Your name</label><input type="text" id="f-name" placeholder="e.g. Priya" autocomplete="name" value="' + escapeHtml(UI.draft.name) + '"></div>' +
             '<div class="field" style="margin-bottom:0;"><label for="f-phone">Mobile number</label><input type="tel" id="f-phone" placeholder="e.g. 9876543210" autocomplete="tel" value="' + escapeHtml(UI.draft.phone) + '"><span class="hint">Used to match your order if you re-submit.</span></div>' +
@@ -724,8 +737,8 @@ import {
       return '<div class="stack">' +
         '<div class="empty-state"><h2>No order round is open</h2><p>Open one so customers can start ordering.</p></div>' +
         '<div class="ticket"><div class="ticket-inner stack">' +
-          '<div class="field"><label for="new-round-label">Round label</label><input type="text" id="new-round-label" value="Today’s Orders"></div>' +
-          '<div class="field" style="margin-bottom:0;"><label for="new-round-date">Date</label><input type="date" id="new-round-date" value="' + todayISO() + '"></div>' +
+'<div class="field"><label for="new-round-label">Round label</label><input type="text" id="new-round-label" value="Sunday Orders"></div>' +
+'<div class="field" style="margin-bottom:0;"><label for="new-round-date">Date</label><input type="date" id="new-round-date" value="' + nextSundayISO() + '"><span class="hint">Orders run weekly, every Sunday — this is pre-filled with the coming Sunday, so just tap below to open it. Change the date if you need a one-off.</span></div>' +
           '<button class="btn btn-primary btn-block" id="btn-open-round">Open ordering</button>' +
         '</div></div>' +
       '</div>';
